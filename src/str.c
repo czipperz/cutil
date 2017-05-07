@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <glib.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "rpmalloc.h"
 
 /*! \brief The representation of a \c str that has allocated its
@@ -27,9 +29,18 @@ struct str_alloc {
 };
 typedef struct str_alloc str_alloc;
 
+static void str_assert_(int cond, const char* condstr,
+                        const char* file, int line) {
+    if (!cond) {
+        printf("%s:%d: Assertion failed: %s", file, line, condstr);
+        abort();
+    }
+}
+#define str_assert(cond) (str_assert_(cond, #cond, __FILE__, __LINE__))
+
 /*! \brief Test if \c self 's representation is stored in the \c _data
  *  member. */
-static limb_bool
+static int
 str_is_inline(const str* self) {
     return (((const str_alloc*)self)->_cap & 1) == 0;
 }
@@ -68,12 +79,12 @@ str_reserve_internal(str* self, size_t new_cap_bytes) {
     return 0;
 }
 
-static limb_bool
+static int
 _utf32_v(uint32_t character) {
     return g_unichar_validate(character);
 }
 
-static limb_bool
+static int
 _utf8_v(const char* str, size_t len) {
     return g_utf8_validate(str, len, 0);
 }
@@ -212,7 +223,7 @@ int
 str_push_sn(str* self, const char* string, size_t len_bytes) {
     assert(self);
     assert(string);
-    limb_assert(_utf8_v(string, len_bytes));
+    str_assert(_utf8_v(string, len_bytes));
     if (str_reserve_internal(self, str_len_bytes(self) + len_bytes)) {
         return -1;
     }
@@ -227,10 +238,10 @@ str_push_s(str* self, const char* string) {
     return str_push_sn(self, string, strlen(string));
 }
 int
-str_push(str* self, gunichar elem) {
+str_push(str* self, uint32_t elem) {
     char outbuf[6];
-    gint size;
-    limb_assert(_utf32_v(elem));
+    int size;
+    str_assert(_utf32_v(elem));
     size = _utf32_to_utf8(elem, outbuf);
     return str_push_sn(self, outbuf, size);
 }
@@ -242,7 +253,7 @@ str_insert_sn(str* self, const char* pos,
     assert(pos);
     assert(str_cbegin(self) < pos);
     assert(pos <= str_cend(self));
-    limb_assert(_utf8_v(string, len_bytes));
+    str_assert(_utf8_v(string, len_bytes));
     if (str_reserve_internal(self, str_len_bytes(self) + len_bytes)) {
         return -1;
     }
@@ -257,10 +268,10 @@ str_insert_s(str* self, const char* pos, const char* string) {
     return str_insert_sn(self, pos, string, strlen(string));
 }
 int
-str_insert(str* self, const char* pos, gunichar elem) {
+str_insert(str* self, const char* pos, uint32_t elem) {
     char outbuf[6];
-    gint size;
-    limb_assert(_utf32_v(elem));
+    int size;
+    str_assert(_utf32_v(elem));
     size = _utf32_to_utf8(elem, outbuf);
     return str_insert_sn(self, pos, outbuf, size);
 }
@@ -269,7 +280,7 @@ int
 str_copy_n(str* self, const char* string, size_t len_bytes) {
     assert(self);
     assert(string);
-    limb_assert(_utf8_v(string, len_bytes));
+    str_assert(_utf8_v(string, len_bytes));
     if (len_bytes <= sizeof(str_alloc) - 1) {
         str_destroy(self);
         memcpy(self->_data, string, len_bytes);
