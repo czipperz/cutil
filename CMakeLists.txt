@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 find_package(GLib REQUIRED)
 
 add_library(cutil STATIC ${CUTIL_SOURCE_DIR}/src/str.c
+                         ${CUTIL_SOURCE_DIR}/src/vec.c
                          ${CUTIL_SOURCE_DIR}/src/rpmalloc.c)
 install(TARGETS cutil DESTINATION lib)
 
