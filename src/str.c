@@ -231,7 +231,7 @@ str_push_sn(str* self, const char* string, size_t len_bytes) {
     if (str_reserve_internal(self, str_len_bytes(self) + len_bytes)) {
         return -1;
     }
-    memcpy(str_begin(self), string, len_bytes);
+    memcpy(str_begin(self) + self_len, string, len_bytes);
     str_set_len_bytes(self, str_len_bytes(self) + len_bytes);
     return 0;
 }
