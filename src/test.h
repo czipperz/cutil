@@ -22,46 +22,22 @@ extern int successes_assert;
 #define TEST(name)                                                   \
     static int name() {                                              \
         int _ret = 0;                                                \
-        const char* const _name = #name;
+        const char* const _name = #name;                             \
+        const int _line = __LINE__;
 #define END_TEST                                                     \
         return _ret;                                                 \
     }
 
 #define PRINT_TEST_FAILED()                                          \
     do {                                                             \
-        fprintf(stderr, "Test failed: %s:%s\n", __FILE__, _name);    \
+        fprintf(stderr, "%s:%d: %s() failed:\n", __FILE__,           \
+                _line, _name);                                       \
     } while (0)
 #define PRINT_ASSERTION_FAILED(str)                                  \
     do {                                                             \
-        fprintf(stderr, "Assertion failed on line %d: %s\n",         \
-                __LINE__, str);                                      \
+        fprintf(stderr, "%s:%d: Assertion failed %s\n",              \
+                __FILE__, __LINE__, str);                            \
     } while (0)
-
-/*
-#define LAZY_ASSERT(cond)                                            \
-    do {                                                             \
-        if (cond) {                                                  \
-            ++successes_assert;                                      \
-        } else {                                                     \
-            if (!_ret) {                                             \
-                PRINT_TEST_FAILED();                                 \
-            }                                                        \
-            PRINT_ASSERTION_FAILED(#cond);                           \
-            _ret = 1;                                                \
-        }                                                            \
-    } while (0)
-#define LAZY_CONCLUDE()                                              \
-    do {                                                             \
-        if (_ret) {                                                  \
-            return 1;                                                \
-        }                                                            \
-    } while (0)
-#define ASSERT(cond)                                                 \
-    do {                                                             \
-        LAZY_ASSERT(cond);                                           \
-        LAZY_CONCLUDE();                                             \
-    } while (0)
-*/
 
 #define CONCLUDE()                                                   \
     do {                                                             \
@@ -70,7 +46,7 @@ extern int successes_assert;
         }                                                            \
     } while (0)
 
-#define ASSERT_ABORT(cond)                                          \
+#define ASSERT_ABORT(cond)                                           \
     do {                                                             \
         if (cond) {                                                  \
             ++successes_assert;                                      \
