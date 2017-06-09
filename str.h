@@ -149,4 +149,22 @@ int str_copy(str* self, const char* string);
  * \return -1 on reallocation failure. */
 int str_copy_n(str* self, const char* string, size_t len_bytes);
 
+/* /\*! \brief Erase elements after and including \c begin. */
+/*  * */
+/*  * May cause deallocation of the string (because it is short enough to */
+/*  * be stored in a short string). *\/ */
+/* void str_erase_after(str* self, size_t begin_byte); */
+
+/*! \brief Erase elements between \c begin and \c end, excluding \c end.
+ *
+ * May cause deallocation of the string (because it is short enough to
+ * be stored in a short string). */
+void str_erase(str* self, size_t begin, size_t end);
+
+/*! \brief Erase \c num elements between \c begin and \c end.
+ *
+ * May cause deallocation of the string (because it is short enough to
+ * be stored in a short string). */
+void str_erase_n_bytes(str* self, size_t begin, size_t num);
+
 #endif

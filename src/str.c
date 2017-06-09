@@ -306,7 +306,25 @@ str_copy(str* self, const char* string) {
     return str_copy_n(self, string, strlen(string));
 }
 
-#if TEST_MODE
+void str_erase(str* self, size_t begin, size_t end) {
+    str_erase_n_bytes(self, begin, end - begin);
+}
+void str_erase_n_bytes(str* self, size_t begin, size_t num) {
+    if (!str_is_inline(self) &&
+        str_len_bytes(self) - num < sizeof(str)) {
+        char* ptr = str_begin(self);
+        size_t len = str_len_bytes(self);
+        memmove(self->_data, ptr, begin);
+        memmove(self->_data + begin, ptr + begin + num,
+                len + 1 - begin - num);
+        rpfree(ptr);
+    } else {
+        memmove(self->_data + begin, self->_data + begin + num,
+                str_len_bytes(self) + 1 - begin - num);
+    }
+}
+
+#ifdef TEST_MODE
 #include "test.h"
 
 TEST(_str_begin) {
