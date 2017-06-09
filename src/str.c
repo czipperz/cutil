@@ -501,6 +501,33 @@ cleanup:
 }
 END_TEST
 
+TEST(test_str_insert) {
+    str s = STR_INIT;
+    if (str_reserve(&s, 5)) {
+        goto cleanup;
+    }
+    ASSERT(!str_insert(&s, str_cbegin(&s), 'o'), cleanup);
+    ASSERT(strcmp(str_cbegin(&s), "o") == 0, cleanup);
+    ASSERT(!str_insert(&s, str_cbegin(&s), 'l'), cleanup);
+    ASSERT(strcmp(str_cbegin(&s), "lo") == 0, cleanup);
+    ASSERT(!str_insert(&s, str_cbegin(&s), 'l'), cleanup);
+    ASSERT(strcmp(str_cbegin(&s), "llo") == 0, cleanup);
+    ASSERT(!str_insert(&s, str_cbegin(&s), 'e'), cleanup);
+    ASSERT(strcmp(str_cbegin(&s), "ello") == 0, cleanup);
+    ASSERT(!str_insert(&s, str_cbegin(&s), 'h'), cleanup);
+
+    LAZY_ASSERT(str_cbegin(&s));
+    LAZY_ASSERT(str_len_bytes(&s) == 5);
+    LAZY_ASSERT(str_cap(&s) >= 5);
+    LAZY_CONCLUDE(cleanup);
+
+    ASSERT(strcmp(str_cbegin(&s), "hello") == 0, cleanup);
+
+cleanup:
+    str_destroy(&s);
+}
+END_TEST
+
 void test_str() {
     RUN(test_str_begin);
     RUN(test_str_reserve_and_push);
@@ -509,5 +536,6 @@ void test_str() {
     RUN(test_str_copy_1);
     RUN(test_str_copy_2);
     RUN(test_str_erase_n_bytes);
+    RUN(test_str_insert);
 }
 #endif
