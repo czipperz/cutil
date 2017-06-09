@@ -25,8 +25,8 @@
 
 /*! \brief A utf8 string with short string optimization.
  *
- * Every function but \c str_set_len() that modifies the string will
- * ensure it is utf8 compliant.
+ * Every function but \c str_set_len_bytes() that modifies the string
+ * will ensure it is utf8 compliant.
  *
  * It is NOT compliant with the \c vec concept.
  *
