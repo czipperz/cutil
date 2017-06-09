@@ -192,7 +192,9 @@ str_reserve(str* self, size_t new_cap) {
 int
 str_shrink_to_size(str* self) {
     assert(self);
+
     if (str_is_inline(self)) {
+        /* do nothing */
     } else if (((str_alloc*)self)->blen * sizeof(char) < sizeof(str) - 1) {
         /* Allocated -> Inline */
         char* ptr = ((str_alloc*)self)->str;
@@ -228,6 +230,7 @@ str_push_sn(str* self, const char* string, size_t len_bytes) {
     assert(self);
     assert(string);
     str_assert(_utf8_v(string, len_bytes));
+
     if (str_reserve_internal(self, str_len_bytes(self) + len_bytes)) {
         return -1;
     }
@@ -238,6 +241,7 @@ str_push_sn(str* self, const char* string, size_t len_bytes) {
 int
 str_push_s(str* self, const char* string) {
     assert(string);
+
     /* use bytes strlen */
     return str_push_sn(self, string, strlen(string));
 }
@@ -246,6 +250,7 @@ str_push(str* self, uint32_t elem) {
     char outbuf[6];
     size_t size;
     str_assert(_utf32_v(elem));
+
     size = _utf32_to_utf8(elem, outbuf);
     return str_push_sn(self, outbuf, size);
 }
@@ -258,9 +263,12 @@ str_insert_sn(str* self, const char* pos,
     assert(str_cbegin(self) < pos);
     assert(pos <= str_cend(self));
     str_assert(_utf8_v(string, len_bytes));
+
     if (str_reserve_internal(self, str_len_bytes(self) + len_bytes)) {
         return -1;
     }
+    /* removing const is safe because it is held as non-const by
+     * self. */
     memmove((char*)pos + len_bytes, pos, len_bytes);
     memcpy((char*)pos, string, len_bytes);
     str_set_len_bytes(self, str_len_bytes(self) + len_bytes);
@@ -276,6 +284,7 @@ str_insert(str* self, const char* pos, uint32_t elem) {
     char outbuf[6];
     int size;
     str_assert(_utf32_v(elem));
+
     size = _utf32_to_utf8(elem, outbuf);
     return str_insert_sn(self, pos, outbuf, size);
 }
@@ -285,6 +294,7 @@ str_copy_n(str* self, const char* string, size_t len_bytes) {
     assert(self);
     assert(string);
     str_assert(_utf8_v(string, len_bytes));
+
     if (len_bytes <= sizeof(str_alloc) - 1) {
         str_destroy(self);
         memcpy(self->_data, string, len_bytes);
@@ -303,6 +313,7 @@ str_copy_n(str* self, const char* string, size_t len_bytes) {
 int
 str_copy(str* self, const char* string) {
     assert(string);
+
     return str_copy_n(self, string, strlen(string));
 }
 
