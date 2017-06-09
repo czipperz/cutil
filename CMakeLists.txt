@@ -8,6 +8,7 @@ find_package(GLib REQUIRED)
 
 set(files ${CUTIL_SOURCE_DIR}/src/str.c
           ${CUTIL_SOURCE_DIR}/src/vec.c
+          ${CUTIL_SOURCE_DIR}/src/dll.c
           ${CUTIL_SOURCE_DIR}/src/rpmalloc.c)
 
 add_library(cutil STATIC ${files})
