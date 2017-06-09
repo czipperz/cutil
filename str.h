@@ -97,7 +97,8 @@ int str_push(str* self, uint32_t character);
  * \return -1 on reallocation failure. */
 int str_push_s(str* self, const char* string);
 
-/*! \brief Insert \c len_bytes bytes of \c string at the end of the str.
+/*! \brief Insert \c len_bytes bytes of \c string at the end of the
+ *  str.
  *
  * This verifies that \c len_bytes bytes of \c string are a valid utf8
  * string.
@@ -125,8 +126,8 @@ int str_insert_s(str* self, const char* pos, const char* string);
  * string.
  *
  * \return -1 on reallocation failure. */
-int str_insert_sn(str* self, const char* pos, const char* string,
-                  size_t len_bytes);
+int str_insert_sn(str* self, const char* pos,
+                  const char* string, size_t len_bytes);
 
 /*! \brief Set the byte length of the string to \c len_bytes and add a
  *  null terminator.  THIS DOES NOT CHECK FOR UTF8 VALIDITY!
