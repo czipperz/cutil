@@ -225,14 +225,16 @@ str_set_len_bytes(str* self, size_t len_bytes) {
 
 int
 str_push_sn(str* self, const char* string, size_t len_bytes) {
+    size_t self_len;
     assert(self);
     assert(string);
+    self_len = str_len_bytes(self);
     str_assert(_utf8_v(string, len_bytes));
-    if (str_reserve_internal(self, str_len_bytes(self) + len_bytes)) {
+    if (str_reserve_internal(self, self_len + len_bytes)) {
         return -1;
     }
-    memcpy(str_begin(self), string, len_bytes);
-    str_set_len_bytes(self, str_len_bytes(self) + len_bytes);
+    memcpy(str_begin(self) + self_len, string, len_bytes);
+    str_set_len_bytes(self, self_len + len_bytes);
     return 0;
 }
 int

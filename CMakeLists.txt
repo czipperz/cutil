@@ -13,10 +13,12 @@ set(files ${CUTIL_SOURCE_DIR}/src/str.c
 
 add_library(cutil STATIC ${files})
 target_link_libraries(cutil ${GLib_LIBRARY})
+target_link_libraries(cutil ${CMAKE_DL_LIBS})
 install(TARGETS cutil DESTINATION lib)
 
 add_executable(test_cutil ${files} ${CUTIL_SOURCE_DIR}/src/test_main.c)
 target_link_libraries(test_cutil ${GLib_LIBRARY})
+target_link_libraries(test_cutil ${CMAKE_DL_LIBS})
 target_compile_definitions(test_cutil PRIVATE "TEST_MODE")
 
 set(CUTIL_INCLUDE_DIRS ${CUTIL_SOURCE_DIR} PARENT_SCOPE)
@@ -24,4 +26,4 @@ set(CUTIL_INCLUDE_DIRS ${CUTIL_SOURCE_DIR} PARENT_SCOPE)
 include_directories(${CUTIL_SOURCE_DIR})
 include_directories(${GLib_INCLUDE_DIRS})
 
-link_libraries(${GLib_LIBRARY})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

@@ -61,7 +61,7 @@ const char* str_cend(const str* self);
 
 /*! \brief Get the number of bytes used by the str.
  *
- * Complexity: O(1) to O(sizeof(str)) */
+ * Complexity: O(1) */
 size_t str_len_bytes(const str* self);
 
 /*! \brief Calculate the number of characters in the str.
