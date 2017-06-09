@@ -98,7 +98,7 @@ void vec_remove(void* s, size_t size, size_t index) {
     --self->len;
 }
 
-#if TEST_MODE
+#ifdef TEST_MODE
 #include "test.h"
 
 struct ivec {
@@ -110,37 +110,42 @@ struct ivec {
 TEST(test_vec_push) {
     struct ivec v = VEC_INIT;
     int el;
-    ASSERT(v.ptr == 0);
-    ASSERT(v.len == 0);
-    ASSERT(v.cap == 0);
+    LAZY_ASSERT(v.ptr == 0);
+    LAZY_ASSERT(v.len == 0);
+    LAZY_ASSERT(v.cap == 0);
+    LAZY_CONCLUDE(cleanup);
 
     el = 1;
     if (vec_push(&v, sizeof(int), &el)) {
-        ASSERT(v.ptr == 0);
-        ASSERT(v.len == 0);
-        ASSERT(v.cap == 0);
-        return 0;
+        LAZY_ASSERT(v.ptr == 0);
+        LAZY_ASSERT(v.len == 0);
+        LAZY_ASSERT(v.cap == 0);
+        goto cleanup;
     }
-    ASSERT(v.ptr);
-    ASSERT(v.len == 1);
-    ASSERT(v.cap >= 1);
-    ASSERT(v.ptr[0] == 1);
+    LAZY_ASSERT(v.ptr);
+    LAZY_ASSERT(v.len == 1);
+    LAZY_ASSERT(v.cap >= 1);
+    LAZY_CONCLUDE(cleanup);
+
+    ASSERT(v.ptr[0] == 1, cleanup);
 
     el = 2;
     if (vec_push(&v, sizeof(int), &el)) {
-        ASSERT(v.ptr);
-        ASSERT(v.len == 1);
-        ASSERT(v.cap == 1);
-
-        rpfree(v.ptr);
-        return 0;
+        LAZY_ASSERT(v.ptr);
+        LAZY_ASSERT(v.len == 1);
+        LAZY_ASSERT(v.cap == 1);
+        goto cleanup;
     }
-    ASSERT(v.ptr);
-    ASSERT(v.len == 2);
-    ASSERT(v.cap >= 2);
-    ASSERT(v.ptr[0] == 1);
-    ASSERT(v.ptr[1] == 2);
+    LAZY_ASSERT(v.ptr);
+    LAZY_ASSERT(v.len == 2);
+    LAZY_ASSERT(v.cap >= 2);
+    LAZY_CONCLUDE(cleanup);
 
+    LAZY_ASSERT(v.ptr[0] == 1);
+    LAZY_ASSERT(v.ptr[1] == 2);
+    LAZY_CONCLUDE(cleanup);
+
+cleanup:
     rpfree(v.ptr);
 }
 END_TEST
@@ -152,40 +157,48 @@ TEST(test_vec_reserve) {
     if (vec_reserve(&v, sizeof(int), 3)) {
         return 0;
     }
-    ASSERT(v.ptr);
-    ASSERT(v.len == 0);
-    ASSERT(v.cap == 3);
+    LAZY_ASSERT(v.ptr);
+    LAZY_ASSERT(v.len == 0);
+    LAZY_ASSERT(v.cap == 3);
     b = v.ptr;
-    ASSERT(v.ptr == b);
+    LAZY_ASSERT(v.ptr == b);
+    LAZY_CONCLUDE(cleanup);
 
     {
         int el = 1;
-        ASSERT(!vec_push(&v, sizeof(int), &el));
-        ASSERT(v.ptr == b);
-        ASSERT(v.len == 1);
-        ASSERT(v.cap == 3);
-        ASSERT(v.ptr[0] == 1);
+        ASSERT(!vec_push(&v, sizeof(int), &el), cleanup);
+        LAZY_ASSERT(v.ptr == b);
+        LAZY_ASSERT(v.len == 1);
+        LAZY_ASSERT(v.cap == 3);
+        LAZY_CONCLUDE(cleanup);
+        LAZY_ASSERT(v.ptr[0] == 1);
+        LAZY_CONCLUDE(cleanup);
     }
     {
         int el = 2000;
-        ASSERT(!vec_push(&v, sizeof(int), &el));
-        ASSERT(v.ptr == b);
-        ASSERT(v.len == 2);
-        ASSERT(v.cap == 3);
-        ASSERT(v.ptr[0] == 1);
-        ASSERT(v.ptr[1] == 2000);
+        ASSERT(!vec_push(&v, sizeof(int), &el), cleanup);
+        LAZY_ASSERT(v.ptr == b);
+        LAZY_ASSERT(v.len == 2);
+        LAZY_ASSERT(v.cap == 3);
+        LAZY_CONCLUDE(cleanup);
+        LAZY_ASSERT(v.ptr[0] == 1);
+        LAZY_ASSERT(v.ptr[1] == 2000);
+        LAZY_CONCLUDE(cleanup);
     }
     {
         int el = 12303;
-        ASSERT(!vec_push(&v, sizeof(int), &el));
-        ASSERT(v.ptr == b);
-        ASSERT(v.len == 3);
-        ASSERT(v.cap == 3);
-        ASSERT(v.ptr[0] == 1);
-        ASSERT(v.ptr[1] == 2000);
-        ASSERT(v.ptr[2] == 12303);
+        ASSERT(!vec_push(&v, sizeof(int), &el), cleanup);
+        LAZY_ASSERT(v.ptr == b);
+        LAZY_ASSERT(v.len == 3);
+        LAZY_ASSERT(v.cap == 3);
+        LAZY_CONCLUDE(cleanup);
+        LAZY_ASSERT(v.ptr[0] == 1);
+        LAZY_ASSERT(v.ptr[1] == 2000);
+        LAZY_ASSERT(v.ptr[2] == 12303);
+        LAZY_CONCLUDE(cleanup);
     }
 
+cleanup:
     rpfree(v.ptr);
 }
 END_TEST
@@ -196,27 +209,30 @@ TEST(test_vec_shrink_to_size) {
     int el;
 
     if (vec_reserve(&v, sizeof(int), 3)) {
+        ASSERT(v.ptr == 0, cleanup);
+        ASSERT(v.len == 0, cleanup);
+        ASSERT(v.cap == 0, cleanup);
         return 0;
     }
-    ASSERT(v.ptr);
-    ASSERT(v.len == 0);
-    ASSERT(v.cap == 3);
+    LAZY_ASSERT(v.ptr);
+    LAZY_ASSERT(v.len == 0);
+    LAZY_ASSERT(v.cap == 3);
+    LAZY_CONCLUDE(cleanup);
     b = v.ptr;
 
     el = 13;
-    ASSERT(!vec_push(&v, sizeof(int), &el));
+    ASSERT(!vec_push(&v, sizeof(int), &el), cleanup);
 
     if (vec_shrink_to_size(&v, sizeof(int))) {
-        ASSERT(v.ptr == b);
-        ASSERT(v.len == 1);
-        ASSERT(v.cap == 3);
-
-        rpfree(v.ptr);
-        return 0;
+        LAZY_ASSERT(v.ptr == b);
+        LAZY_ASSERT(v.len == 1);
+        LAZY_ASSERT(v.cap == 3);
+        goto cleanup;
     }
-    ASSERT(v.len == 1);
-    ASSERT(v.cap == 1);
+    LAZY_ASSERT(v.len == 1);
+    LAZY_ASSERT(v.cap == 1);
 
+cleanup:
     rpfree(v.ptr);
 }
 END_TEST
@@ -227,31 +243,31 @@ TEST(test_vec_insert) {
 
     el = 20;
     if (vec_insert(&v, sizeof(int), 0, &el)) {
-        ASSERT(v.ptr == 0);
-        ASSERT(v.len == 0);
-        ASSERT(v.cap == 0);
+        ASSERT(v.ptr == 0, cleanup);
+        ASSERT(v.len == 0, cleanup);
+        ASSERT(v.cap == 0, cleanup);
         return 0;
     }
-    ASSERT(v.ptr);
-    ASSERT(v.len == 1);
-    ASSERT(v.cap >= 1);
-    ASSERT(v.ptr[0] == 20);
+    ASSERT(v.ptr, cleanup);
+    ASSERT(v.len == 1, cleanup);
+    ASSERT(v.cap >= 1, cleanup);
+    ASSERT(v.ptr[0] == 20, cleanup);
 
     el = 13;
     if (vec_insert(&v, sizeof(int), 0, &el)) {
-        ASSERT(v.ptr);
-        ASSERT(v.len == 1);
-        ASSERT(v.cap >= 1);
+        LAZY_ASSERT(v.ptr);
+        LAZY_ASSERT(v.len == 1);
+        LAZY_ASSERT(v.cap >= 1);
 
-        rpfree(v.ptr);
-        return 0;
+        goto cleanup;
     }
-    ASSERT(v.ptr);
-    ASSERT(v.len == 2);
-    ASSERT(v.cap >= 2);
-    ASSERT(v.ptr[0] == 13);
-    ASSERT(v.ptr[1] == 20);
+    ASSERT(v.ptr, cleanup);
+    ASSERT(v.len == 2, cleanup);
+    ASSERT(v.cap >= 2, cleanup);
+    ASSERT(v.ptr[0] == 13, cleanup);
+    ASSERT(v.ptr[1] == 20, cleanup);
 
+cleanup:
     rpfree(v.ptr);
 }
 END_TEST
