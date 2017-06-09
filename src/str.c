@@ -89,7 +89,7 @@ _utf8_v(const char* str, size_t len) {
     return g_utf8_validate(str, len, 0);
 }
 
-static int _utf32_to_utf8(uint32_t elem, char* outbuf) {
+static size_t _utf32_to_utf8(uint32_t elem, char* outbuf) {
     return g_unichar_to_utf8(elem, outbuf);
 }
 
@@ -244,7 +244,7 @@ str_push_s(str* self, const char* string) {
 int
 str_push(str* self, uint32_t elem) {
     char outbuf[6];
-    int size;
+    size_t size;
     str_assert(_utf32_v(elem));
     size = _utf32_to_utf8(elem, outbuf);
     return str_push_sn(self, outbuf, size);
