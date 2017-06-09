@@ -227,15 +227,17 @@ str_set_len_bytes(str* self, size_t len_bytes) {
 
 int
 str_push_sn(str* self, const char* string, size_t len_bytes) {
+    size_t self_len;
     assert(self);
     assert(string);
     str_assert(_utf8_v(string, len_bytes));
 
-    if (str_reserve_internal(self, str_len_bytes(self) + len_bytes)) {
+    self_len = str_len_bytes(self);
+    if (str_reserve_internal(self, self_len + len_bytes)) {
         return -1;
     }
     memcpy(str_begin(self) + self_len, string, len_bytes);
-    str_set_len_bytes(self, str_len_bytes(self) + len_bytes);
+    str_set_len_bytes(self, self_len + len_bytes);
     return 0;
 }
 int
@@ -258,20 +260,22 @@ str_push(str* self, uint32_t elem) {
 int
 str_insert_sn(str* self, const char* pos,
               const char* string, size_t len_bytes) {
+    size_t self_len;
     assert(self);
     assert(pos);
     assert(str_cbegin(self) < pos);
     assert(pos <= str_cend(self));
     str_assert(_utf8_v(string, len_bytes));
 
-    if (str_reserve_internal(self, str_len_bytes(self) + len_bytes)) {
+    self_len = str_len_bytes(self);
+    if (str_reserve_internal(self, self_len + len_bytes)) {
         return -1;
     }
     /* removing const is safe because it is held as non-const by
      * self. */
     memmove((char*)pos + len_bytes, pos, len_bytes);
     memcpy((char*)pos, string, len_bytes);
-    str_set_len_bytes(self, str_len_bytes(self) + len_bytes);
+    str_set_len_bytes(self, self_len + len_bytes);
     return 0;
 }
 int
