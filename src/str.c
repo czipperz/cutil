@@ -489,7 +489,7 @@ END_TEST
 TEST(test_str_erase_n_bytes) {
     str s = STR_INIT;
     if (str_copy(&s, "HI")) {
-        return 0;
+        goto cleanup;
     }
     str_erase_n_bytes(&s, 1, 1);
     LAZY_ASSERT(strcmp(str_cbegin(&s), "H") == 0);
