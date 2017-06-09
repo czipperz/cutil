@@ -6,11 +6,19 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
                       ${CUTIL_SOURCE_DIR}/cmake)
 find_package(GLib REQUIRED)
 
-add_library(cutil STATIC ${CUTIL_SOURCE_DIR}/src/str.c
-                         ${CUTIL_SOURCE_DIR}/src/vec.c
-                         ${CUTIL_SOURCE_DIR}/src/rpmalloc.c)
+set(files ${CUTIL_SOURCE_DIR}/src/str.c
+          ${CUTIL_SOURCE_DIR}/src/vec.c
+          ${CUTIL_SOURCE_DIR}/src/rpmalloc.c)
+
+add_library(cutil STATIC ${files})
 target_link_libraries(cutil ${GLib_LIBRARY})
 install(TARGETS cutil DESTINATION lib)
+
+add_executable(test_cutil ${files} ${CUTIL_SOURCE_DIR}/src/test_main.c)
+target_link_libraries(test_cutil ${GLib_LIBRARY})
+target_compile_definitions(test_cutil PRIVATE "TEST_MODE")
+
+set(CUTIL_INCLUDE_DIRS ${CUTIL_SOURCE_DIR} PARENT_SCOPE)
 
 include_directories(${CUTIL_SOURCE_DIR})
 include_directories(${GLib_INCLUDE_DIRS})
