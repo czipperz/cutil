@@ -11,6 +11,11 @@ set(files ${CUTIL_SOURCE_DIR}/src/str.c
           ${CUTIL_SOURCE_DIR}/src/dll.c
           ${CUTIL_SOURCE_DIR}/src/rpmalloc.c)
 
+add_definitions("-Wincompatible-pointer-types" "-Wall"
+  "-Wextra" "-Wpedantic" "-Wno-error=unused-parameter"
+  "-Wno-error=format-extra-args" "-Wno-unused-function"
+  "-Wno-unused-variable")
+
 add_library(cutil STATIC ${files})
 target_link_libraries(cutil ${GLib_LIBRARY})
 target_link_libraries(cutil ${CMAKE_DL_LIBS})
