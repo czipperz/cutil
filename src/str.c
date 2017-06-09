@@ -93,6 +93,10 @@ static int _utf32_to_utf8(uint32_t elem, char* outbuf) {
     return g_unichar_to_utf8(elem, outbuf);
 }
 
+static size_t _utf8_strlen_characters(const char* str, size_t len) {
+    return g_utf8_strlen(str, len);
+}
+
 static void
 str_make_inline(str* self) {
     ((str_alloc*)self)->_cap &= ~(size_t)1;
@@ -143,7 +147,7 @@ str_len_bytes(const str* self) {
 
 size_t
 str_len_characters(const str* self) {
-    return g_utf8_strlen(str_cbegin(self), str_len_bytes(self));
+    return _utf8_strlen_characters(str_cbegin(self), str_len_bytes(self));
 }
 
 size_t
