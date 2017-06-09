@@ -357,7 +357,7 @@ TEST(test_str_reserve_and_push) {
     str s = STR_INIT;
     const char* b;
 
-    if (str_reserve(&s, 5)) { return 0; }
+    if (str_reserve(&s, 5)) { goto cleanup; }
     ASSERT(str_cbegin(&s), cleanup);
     ASSERT(str_len_bytes(&s) == 0, cleanup);
     ASSERT(str_cap(&s) >= 5, cleanup);
@@ -400,7 +400,7 @@ END_TEST
 TEST(test_str_shrink_to_size) {
     str s = STR_INIT;
 
-    if (str_reserve(&s, 5)) { return 0; }
+    if (str_reserve(&s, 5)) { goto cleanup; }
     ASSERT(!str_push(&s, 'a'), cleanup);
 
     if (str_shrink_to_size(&s)) {
@@ -420,7 +420,7 @@ TEST(test_str_set_len) {
     str s = STR_INIT;
     const char* begin;
 
-    if (str_reserve(&s, 3)) { return 0; }
+    if (str_reserve(&s, 3)) { goto cleanup; }
     LAZY_ASSERT(str_cbegin(&s));
     begin = str_cbegin(&s);
     LAZY_ASSERT(str_cap(&s) >= 3);
@@ -455,14 +455,14 @@ END_TEST
 TEST(test_str_copy_1) {
     str s = STR_INIT;
     if (str_copy(&s, "HI")) {
-        return 0;
+        goto cleanup;
     }
     LAZY_ASSERT(str_cbegin(&s));
     LAZY_ASSERT(str_len_bytes(&s) == 2);
     LAZY_ASSERT(str_cap(&s) >= 2);
     LAZY_CONCLUDE(cleanup1);
-    ASSERT(strcmp(str_cbegin(&s), "HI") == 0, cleanup1);
-cleanup1:
+    ASSERT(strcmp(str_cbegin(&s), "HI") == 0, cleanup);
+cleanup:
     str_destroy(&s);
 }
 END_TEST
@@ -471,17 +471,17 @@ TEST(test_str_copy_2) {
     str s = STR_INIT;
     if (str_copy(&s, "Hi my name is czipperz and I like to write "
                         "really long strings.")) {
-        return 0;
+        goto cleanup;
     }
     LAZY_ASSERT(str_cbegin(&s));
     LAZY_ASSERT(str_len_bytes(&s) == 63);
     LAZY_ASSERT(str_cap(&s) >= 63);
-    LAZY_CONCLUDE(cleanup2);
+    LAZY_CONCLUDE(cleanup);
     ASSERT(strcmp(str_cbegin(&s), "Hi my name is czipperz and I "
                                     "like to write really long "
                                     "strings.") == 0,
-            cleanup2);
-cleanup2:
+            cleanup);
+cleanup:
     str_destroy(&s);
 }
 END_TEST
