@@ -37,8 +37,8 @@ assert(vec.capacity >= 2);
 \endcode
  */
 
-#ifndef HEADER_GUARD_VEC_H
-#define HEADER_GUARD_VEC_H
+#ifndef CUTIL_VEC_H
+#define CUTIL_VEC_H
 
 #include <stddef.h>
 

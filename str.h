@@ -17,8 +17,8 @@
  * Functions return -1 on allocation failure.
  */
 
-#ifndef HEADER_GUARD_STR_H
-#define HEADER_GUARD_STR_H
+#ifndef CUTIL_STR_H
+#define CUTIL_STR_H
 
 #include <stddef.h>
 #include <stdint.h>
