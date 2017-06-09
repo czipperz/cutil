@@ -42,7 +42,7 @@ struct str {
 };
 typedef struct str str;
 
-#define STR_INIT {0}
+#define STR_INIT {{0}}
 
 /*! \brief Free memory used by \c self . */
 void str_destroy(str* self);
