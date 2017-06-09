@@ -263,7 +263,7 @@ str_insert_sn(str* self, const char* pos,
     size_t self_len;
     assert(self);
     assert(pos);
-    assert(str_cbegin(self) < pos);
+    assert(str_cbegin(self) <= pos);
     assert(pos <= str_cend(self));
     str_assert(_utf8_v(string, len_bytes));
 
@@ -273,7 +273,7 @@ str_insert_sn(str* self, const char* pos,
     }
     /* removing const is safe because it is held as non-const by
      * self. */
-    memmove((char*)pos + len_bytes, pos, len_bytes);
+    memmove((char*)pos + len_bytes, pos, self_len - (pos - str_cbegin(self)));
     memcpy((char*)pos, string, len_bytes);
     str_set_len_bytes(self, self_len + len_bytes);
     return 0;
