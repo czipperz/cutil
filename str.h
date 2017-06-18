@@ -69,7 +69,7 @@ char* str_begin(str* self);
 /*! \brief Get a constant pointer to the beginning of the str. */
 const char* str_cbegin(const str* self);
 
-/*! \brief Get a mutable pointer to the end of the str.*/
+/*! \brief Get a mutable pointer to the end of the str. */
 char* str_end(str* self);
 
 /*! \brief Get a constant pointer to the end of the str. */
