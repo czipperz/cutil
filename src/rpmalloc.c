@@ -1292,7 +1292,7 @@ _memory_usable_size(void* p) {
 	}
 
 	/* Oversized block, page count is stored in next_span */
-        return ((size_t)span->next_span * (size_t)PAGE_SIZE) - SPAN_HEADER_SIZE;
+	return ((size_t)span->next_span * (size_t)PAGE_SIZE) - SPAN_HEADER_SIZE;
 }
 
 /*! Adjust and optimize the size class properties for the given class */
@@ -1678,7 +1678,7 @@ rpfree(void* ptr) {
 void*
 rpcalloc(size_t num, size_t size) {
 	size_t total;
-        void* ptr;
+	void* ptr;
 #if ENABLE_VALIDATE_ARGS
 #ifdef PLATFORM_WINDOWS
 	int err = SizeTMult(num, size, &total);
@@ -1713,8 +1713,7 @@ rprealloc(void* ptr, size_t size) {
 }
 
 void*
-rpaligned_realloc(void* ptr, size_t alignment, size_t size, size_t oldsize,
-                  unsigned int flags) {
+rpaligned_realloc(void* ptr, size_t alignment, size_t size, size_t oldsize, unsigned int flags) {
 #if ENABLE_VALIDATE_ARGS
 	if (size + alignment < size) {
 		errno = EINVAL;
@@ -1824,8 +1823,8 @@ rpmalloc_global_statistics(rpmalloc_global_statistics_t* stats) {
 	}
 	for (iclass = 0; iclass < LARGE_CLASS_COUNT; ++iclass) {
 		void* global_span_ptr;
-                while ((global_span_ptr = atomic_load_ptr(&_memory_large_cache[iclass])) == SPAN_LIST_LOCK_TOKEN) {
-                    thread_yield();
+		while ((global_span_ptr = atomic_load_ptr(&_memory_large_cache[iclass])) == SPAN_LIST_LOCK_TOKEN) {
+			thread_yield();
 		}
 		/* add list bytes */
 		stats->cached_large += /* global span count */ ((uintptr_t)global_span_ptr & ~SPAN_MASK) *
