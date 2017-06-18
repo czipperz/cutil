@@ -29,8 +29,9 @@ struct str_alloc {
 };
 typedef struct str_alloc str_alloc;
 
-static void str_assert_(int cond, const char* condstr,
-                        const char* file, int line) {
+static void
+str_assert_(int cond, const char* condstr,
+            const char* file, int line) {
     if (!cond) {
         printf("%s:%d: Assertion failed: %s", file, line, condstr);
         abort();
@@ -89,11 +90,13 @@ _utf8_v(const char* str, size_t len) {
     return g_utf8_validate(str, len, 0);
 }
 
-static size_t _utf32_to_utf8(uint32_t elem, char* outbuf) {
+static size_t
+_utf32_to_utf8(uint32_t elem, char* outbuf) {
     return g_unichar_to_utf8(elem, outbuf);
 }
 
-static size_t _utf8_strlen_characters(const char* str, size_t len) {
+static size_t
+_utf8_strlen_characters(const char* str, size_t len) {
     return g_utf8_strlen(str, len);
 }
 
@@ -321,10 +324,12 @@ str_copy(str* self, const char* string) {
     return str_copy_n(self, string, strlen(string));
 }
 
-void str_erase(str* self, size_t begin, size_t end) {
+void
+str_erase(str* self, size_t begin, size_t end) {
     str_erase_n_bytes(self, begin, end - begin);
 }
-void str_erase_n_bytes(str* self, size_t begin, size_t num) {
+void
+str_erase_n_bytes(str* self, size_t begin, size_t num) {
     if (!str_is_inline(self) &&
         str_len_bytes(self) - num < sizeof(str)) {
         char* ptr = str_begin(self);
