@@ -292,6 +292,11 @@ str_push_s(str* self, const char* string) {
     return str_push_sn(self, string, strlen(string));
 }
 int
+str_push_str(str* self, const str* string) {
+    assert(string);
+    return str_push_sn(self, str_cbegin(string), str_len_bytes(string));
+}
+int
 str_push(str* self, uint32_t elem) {
     char outbuf[6];
     size_t size;
@@ -326,6 +331,12 @@ int
 str_insert_s(str* self, const char* pos, const char* string) {
     assert(string);
     return str_insert_sn(self, pos, string, strlen(string));
+}
+int
+str_insert_str(str* self, const char* pos, const str* string) {
+    assert(string);
+    return str_insert_sn(self, pos, str_cbegin(string),
+                         str_len_bytes(string));
 }
 int
 str_insert(str* self, const char* pos, uint32_t elem) {
@@ -363,6 +374,13 @@ str_copy(str* self, const char* string) {
     assert(string);
 
     return str_copy_n(self, string, strlen(string));
+}
+int
+str_copy_str(str* self, const str* string) {
+    assert(self);
+    assert(string);
+
+    return str_copy_n(self, str_cbegin(string), str_len_bytes(string));
 }
 
 void

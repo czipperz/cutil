@@ -122,6 +122,13 @@ int str_push_s(str* self, const char* string);
  * \return -1 on reallocation failure. */
 int str_push_sn(str* self, const char* string, size_t len_bytes);
 
+/*! \brief Insert \c string at the end of the str.
+ *
+ * This does not verify that \c string is valid utf8.
+ *
+ * \return -1 on reallocation failure. */
+int str_push_str(str* self, const str* string);
+
 /*! \brief Insert \c character at \c pos in the str.
  *
  * This verifies that \c character is a valid utf32 character.
@@ -145,6 +152,13 @@ int str_insert_s(str* self, const char* pos, const char* string);
 int str_insert_sn(str* self, const char* pos,
                   const char* string, size_t len_bytes);
 
+/*! \brief Insert \c string at \c pos of the str.
+ *
+ * This does not verify that \c string is valid utf8.
+ *
+ * \return -1 on reallocation failure. */
+int str_insert_str(str* self, const char* pos, const str* string);
+
 /*! \brief Set the byte length of the string to \c len_bytes and add a
  *  null terminator.  THIS DOES NOT CHECK FOR UTF8 VALIDITY!
  *
@@ -165,6 +179,13 @@ int str_copy(str* self, const char* string);
  *
  * \return -1 on reallocation failure. */
 int str_copy_n(str* self, const char* string, size_t len_bytes);
+
+/*! \brief Copy \c string into the str.
+ *
+ * This does not verify that \c string is valid utf8.
+ *
+ * \return -1 on reallocation failure. */
+int str_copy_str(str* self, const str* string);
 
 /* /\*! \brief Erase elements after and including \c begin. */
 /*  * */
