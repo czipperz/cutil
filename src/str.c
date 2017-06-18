@@ -43,14 +43,64 @@ str_assert_(int cond, const char* condstr,
  *  member. */
 static int
 str_is_inline(const str* self) {
-    return (((const str_alloc*)self)->_cap & 1) == 0;
+    return (((const char*)self)[sizeof(str) - 1] & 1) == 0;
+}
+
+static void
+str_make_inline(str* self) {
+    ((char*)self)[sizeof(str) - 1] &= ~1;
+}
+
+static void
+str_make_alloc(str* self) {
+    ((char*)self)[sizeof(str) - 1] |= 1;
+}
+
+static int
+is_little_endian(void) {
+    /* little endian has least significant byte first */
+    int i = 1;
+    return ((char*)&i)[0] == 1;
+}
+
+static size_t
+str_alloc_cap(const str_alloc* self) {
+    size_t cap;
+    if (is_little_endian()) {
+        /* On little endian, since shift right shifts left, we have to
+         * do a roundabout method.  Move the byte with the flag to the
+         * first byte then shift right. */
+        char* _cap = (char*)&self->_cap;
+        char* c = (char*)&cap;
+        memcpy(c + 1, _cap, sizeof(size_t) - 1);
+        c[0] = _cap[sizeof(size_t) - 1];
+    } else {
+        /* On big endian, shift right actually shifts right one. */
+        cap = self->_cap;
+    }
+    return cap >> 1;
+}
+
+static void
+str_alloc_set_cap(str_alloc* self, size_t cap) {
+    cap <<= 1;
+    cap |= 1;
+    if (is_little_endian()) {
+        /* Put first byte at the end */
+        char* _cap = (char*)&self->_cap;
+        memcpy(_cap, (char*)&cap + 1, sizeof(size_t) - 1);
+        _cap[sizeof(size_t) - 1] = ((char*)&cap)[0];
+    } else {
+        /* Store directly */
+        self->_cap = cap;
+    }
 }
 
 static int
 str_reserve_internal(str* self, size_t new_cap_bytes) {
     char* ptr;
     if (str_is_inline(self)) {
-        if (new_cap_bytes < sizeof(str_alloc)) {
+        if (new_cap_bytes < sizeof(str) - 1) {
             return 0;
         }
         if ((ptr = rpmalloc(new_cap_bytes * sizeof(char)))) {
@@ -59,16 +109,13 @@ str_reserve_internal(str* self, size_t new_cap_bytes) {
             memcpy(ptr, self, len + 1);
             ((str_alloc*)self)->blen = len;
         }
-        new_cap_bytes <<= 1;
-    } else if ((((str_alloc*)self)->_cap >> 1) < new_cap_bytes) {
-        if ((((str_alloc*)self)->_cap >> 1) * 2 > new_cap_bytes) {
+    } else if (str_alloc_cap((str_alloc*)self) < new_cap_bytes) {
+        if (str_alloc_cap((str_alloc*)self) * 2 > new_cap_bytes) {
             /* _cap has a 1 bit at the end */
-            new_cap_bytes = ((((str_alloc*)self)->_cap >> 1) * 2);
+            new_cap_bytes = str_alloc_cap((str_alloc*)self) * 2;
         }
         ptr = rprealloc(((str_alloc*)self)->str,
                         new_cap_bytes * sizeof(char));
-        new_cap_bytes <<= 1;
-        new_cap_bytes |= 1;
     } else {
         return 0;
     }
@@ -76,7 +123,7 @@ str_reserve_internal(str* self, size_t new_cap_bytes) {
         return -1;
     }
     ((str_alloc*)self)->str = ptr;
-    ((str_alloc*)self)->_cap = new_cap_bytes;
+    str_alloc_set_cap((str_alloc*)self, new_cap_bytes);
     return 0;
 }
 
@@ -98,16 +145,6 @@ _utf32_to_utf8(uint32_t elem, char* outbuf) {
 static size_t
 _utf8_strlen_characters(const char* str, size_t len) {
     return g_utf8_strlen(str, len);
-}
-
-static void
-str_make_inline(str* self) {
-    ((str_alloc*)self)->_cap &= ~(size_t)1;
-}
-
-static void
-str_make_alloc(str* self) {
-    ((str_alloc*)self)->_cap |= 1;
 }
 
 void
@@ -160,9 +197,9 @@ str_len_characters(const str* self) {
 size_t
 str_cap(const str* self) {
     if (str_is_inline(self)) {
-        return sizeof(str_alloc) - 1;
+        return sizeof(str) - 1;
     } else {
-        return ((const str_alloc*)self)->_cap >> 1;
+        return str_alloc_cap((const str_alloc*)self);
     }
 }
 
@@ -176,7 +213,7 @@ str_reserve(str* self, size_t new_cap) {
     }
     if (str_is_inline(self)) {
         /* Inline -> Allocated */
-        if ((ptr = rpmalloc(new_cap * sizeof(char)))) {
+        if ((ptr = rpmalloc((new_cap + 1) * sizeof(char)))) {
             /* use bytes strlen */
             const size_t len = strlen((const char*)self);
             memcpy(ptr, self, len + 1);
@@ -185,14 +222,13 @@ str_reserve(str* self, size_t new_cap) {
     } else {
         /* Expand allocated space */
         ptr = rprealloc(((str_alloc*)self)->str,
-                        new_cap * sizeof(char));
+                        (new_cap + 1) * sizeof(char));
     }
     if (!ptr) {
         return -1;
     }
     ((str_alloc*)self)->str = ptr;
-    ((str_alloc*)self)->_cap = new_cap << 1;
-    str_make_alloc(self);
+    str_alloc_set_cap((str_alloc*)self, new_cap);
     return 0;
 }
 
@@ -207,6 +243,7 @@ str_shrink_to_size(str* self) {
         char* ptr = ((str_alloc*)self)->str;
         str_make_inline(self);
         memcpy(self->_data, ptr, ((str_alloc*)self)->blen);
+        rpfree(ptr);
     } else {
         /* reallocate */
         char* ptr;
@@ -216,7 +253,7 @@ str_shrink_to_size(str* self) {
             return -1;
         }
         ((str_alloc*)self)->str = ptr;
-        ((str_alloc*)self)->_cap = ((str_alloc*)self)->blen << 1;
+        str_alloc_set_cap((str_alloc*)self, ((str_alloc*)self)->blen);
     }
     return 0;
 }
