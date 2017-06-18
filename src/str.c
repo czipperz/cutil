@@ -111,10 +111,14 @@ str_make_alloc(str* self) {
 }
 
 void
+str_init(str* self) { memset(self, 0, sizeof(str)); }
+
+void
 str_destroy(str* self) {
     if (!str_is_inline(self)) {
         rpfree(((str_alloc*)self)->str);
     }
+    str_init(self);
 }
 
 const char*

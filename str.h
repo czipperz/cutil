@@ -15,6 +15,12 @@
  * pointers being in the correct area of the string.
  *
  * Functions return -1 on allocation failure.
+ *
+ * Every function will result in the string remaining in a defined
+ * state.  AKA if allocation fails, the string is still valid.
+ *
+ * Destroying the string is safe to call multiple times.  It
+ * essentially sets the string to \c STR_INIT once complete.
  */
 
 #ifndef CUTIL_STR_H
@@ -44,7 +50,17 @@ typedef struct str str;
 
 #define STR_INIT {{0}}
 
-/*! \brief Free memory used by \c self . */
+/*! \brief Initialize the string.
+ *
+ * If the string is already initialized, this will most likely leak
+ * memory, so use \c str_destroy instead. */
+void str_init(str* self);
+
+/*! \brief Free memory used by \c self.
+ *
+ * To ensure defined behavior, this finishes by calling \c str_init.
+ *
+ * It is SAFE to call this multiple times. */
 void str_destroy(str* self);
 
 /*! \brief Get a mutable pointer to the end of the str. */
