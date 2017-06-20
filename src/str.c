@@ -592,7 +592,7 @@ cleanup:
 }
 END_TEST
 
-void test_str() {
+void test_str(void) {
     RUN(test_str_begin);
     RUN(test_str_reserve_and_push);
     RUN(test_str_shrink_to_size);

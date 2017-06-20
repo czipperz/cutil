@@ -272,7 +272,7 @@ cleanup:
 }
 END_TEST
 
-void test_vec() {
+void test_vec(void) {
     RUN(test_vec_push);
     RUN(test_vec_reserve);
     RUN(test_vec_shrink_to_size);
