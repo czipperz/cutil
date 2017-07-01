@@ -40,6 +40,10 @@ assert(vec.capacity >= 2);
 #ifndef CUTIL_VEC_H
 #define CUTIL_VEC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 
 /*! \brief Increase the capacity to \c new_cap.
@@ -70,5 +74,9 @@ int vec_shrink_to_size(void* self, size_t sizeof_elem);
 void vec_remove(void* self, size_t sizeof_elem, size_t index);
 
 #define VEC_INIT {0, 0, 0}
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

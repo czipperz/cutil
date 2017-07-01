@@ -8,6 +8,10 @@
 #ifndef HEADER_GUARD_TEST_H
 #define HEADER_GUARD_TEST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef TEST_MODE
 #error "Must be in TEST_MODE to include test.h"
 #endif
@@ -101,5 +105,9 @@ extern int successes_assert;
             ++successes;                                             \
         }                                                            \
     } while (0)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

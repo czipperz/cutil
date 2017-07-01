@@ -26,6 +26,10 @@
 #ifndef CUTIL_STR_H
 #define CUTIL_STR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -204,5 +208,9 @@ void str_erase(str* self, size_t begin, size_t end);
  * May cause deallocation of the string (because it is short enough to
  * be stored in a short string). */
 void str_erase_n_bytes(str* self, size_t begin, size_t num);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
