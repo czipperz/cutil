@@ -8,7 +8,7 @@ struct stack_trace_item {
 };
 typedef struct stack_trace_item stack_trace_item;
 
-static const int stack_trace_max = 100;
+#define stack_trace_max 100
 static stack_trace_item stack_trace_storage[stack_trace_max];
 static int stack_trace_iter;
 
@@ -32,10 +32,10 @@ void stack_trace_print(void) {
     fprintf(stderr, "STACK TRACE:\n");
     int i;
     for (i = 0; i != stack_trace_iter && i != stack_trace_max; ++i) {
-        printf(stderr, "%s:%d: In function %s\n",
-               stack_trace_storage[i].file,
-               stack_trace_storage[i].line,
-               stack_trace_storage[i].func);
+        fprintf(stderr, "%s:%d: In function %s\n",
+                stack_trace_storage[i].file,
+                stack_trace_storage[i].line,
+                stack_trace_storage[i].func);
     }
     fprintf(stderr, "STACK TRACE COMPLETE.\n");
 }
