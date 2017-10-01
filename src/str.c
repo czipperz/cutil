@@ -389,18 +389,26 @@ str_erase(str* self, size_t begin, size_t end) {
 }
 void
 str_erase_n_bytes(str* self, size_t begin, size_t num) {
-    if (!str_is_inline(self) &&
-        str_len_bytes(self) - num < sizeof(str)) {
-        char* ptr = str_begin(self);
-        size_t len = str_len_bytes(self);
-        memmove(self->_data, ptr, begin);
-        memmove(self->_data + begin, ptr + begin + num,
-                len + 1 - begin - num);
-        rpfree(ptr);
-    } else {
-        memmove(self->_data + begin, self->_data + begin + num,
-                str_len_bytes(self) + 1 - begin - num);
-    }
+    /* if (str_len_bytes(self) - num < sizeof(str)) { */
+    /*     char* ptr = str_begin(self); */
+    /*     size_t len = str_len_bytes(self); */
+    /*     memmove(self->_data, ptr, begin); */
+    /*     memmove(self->_data + begin, ptr + begin + num, */
+    /*             len + 1 - begin - num); */
+    /*     rpfree(ptr); */
+    /* } else { */
+    /*     char* ptr = str_begin(self); */
+    /*     size_t len = str_len_bytes(self); */
+    /*     memmove(ptr + begin, ptr + begin + num, */
+    /*             len + 1 - begin - num); */
+    /*     str_set_len_bytes(self, len - num); */
+    /* } */
+    char* ptr = str_begin(self);
+    size_t len = str_len_bytes(self);
+    memmove(ptr + begin, ptr + begin + num,
+            len + 1 - begin - num);
+    str_set_len_bytes(self, len - num);
+    assert(ptr[len-num] == 0);
 }
 
 #ifdef TEST_MODE
