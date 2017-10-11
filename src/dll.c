@@ -1,7 +1,14 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * Copyright (c) 2017 Chris Gregory czipperz@gmail.com
+ */
+
 #include "../dll.h"
-#include "rpmalloc.h"
 
 #ifdef _WIN32
+#include "../rpmalloc.h"
 #include <Windows.h>
 
 /* On Windows we try to avoid extra allocation but it sometimes is
@@ -12,10 +19,17 @@ struct dll {
     HMODULE module;
 };
 
-dll* dll_open(const char* file_name) {
+dll*
+dll_open(const char* file_name) {
     HMODULE module = LoadLibrary(file_name);
+    if (!module) {
+        return 0;
+    }
     if (sizeof(HMODULE) > sizeof(dll*)) {
         dll* dll = rpmalloc(sizeof(struct dll));
+        if (!dll) {
+            FreeLibrary(module);
+        }
         dll->module = module;
         return dll;
     } else {
@@ -23,7 +37,8 @@ dll* dll_open(const char* file_name) {
     }
 }
 
-void dll_close(dll* dll) {
+int
+dll_close(dll* dll) {
     HMODULE module;
     if (sizeof(HMODULE) > sizeof(dll*)) {
         module = dll->module;
@@ -34,7 +49,8 @@ void dll_close(dll* dll) {
     return !FreeLibrary(module);
 }
 
-void* dll_symbol(dll* dll, const char* symbol_name) {
+void*
+dll_symbol(dll* dll, const char* symbol_name) {
     HMODULE module;
     if (sizeof(HMODULE) > sizeof(dll*)) {
         module = dll->module;
@@ -48,18 +64,21 @@ void* dll_symbol(dll* dll, const char* symbol_name) {
 #else
 #include <dlfcn.h>
 
-dll* dll_open(const char* file_name) {
+dll*
+dll_open(const char* file_name) {
     return dlopen(file_name,
                   /* Mimick LoadLibrary on Windows which doesn't allow
                    * options. */
                   RTLD_NOW | RTLD_GLOBAL);
 }
 
-int dll_close(dll* dll) {
+int
+dll_close(dll* dll) {
     return dlclose(dll);
 }
 
-void* dll_symbol(dll* dll, const char* symbol_name) {
+void*
+dll_symbol(dll* dll, const char* symbol_name) {
     return dlsym(dll, symbol_name);
 }
 #endif
