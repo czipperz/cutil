@@ -27,7 +27,7 @@ struct hashmap {
 };
 
 hashmap* hashmap_new(size_t (*hash)(const void*)) {
-    hashmap* hashmap = rpmalloc(sizeof(hashmap));
+    hashmap* hashmap = rpmalloc(sizeof(struct hashmap));
     if (hashmap) {
         hashmap->len = 8;
         hashmap->mods = rpcalloc(hashmap->len, sizeof(elemvec));
@@ -151,7 +151,7 @@ int hashmap_erase(hashmap* hashmap, const void* element, size_t size) {
         vec_remove(&hashmap->mods[mod], size, index);
         --hashmap->elems;
     }
-    return contains;
+    return !contains;
 }
 
 void hashmap_iterate(hashmap* hashmap, size_t size, void (*fun)(void*, void*), void* userdata) {
@@ -162,6 +162,50 @@ void hashmap_iterate(hashmap* hashmap, size_t size, void (*fun)(void*, void*), v
         for (i = 0; i != vec->len; ++i) {
             fun(&vec->elems[i * size], userdata);
         }
+    }
+}
+
+hashmap_iterator hashmap_iterator_new(hashmap* hashmap) {
+    size_t mod;
+    hashmap_iterator iterator;
+    iterator._hashmap = hashmap;
+    iterator._inner = 0;
+    for (mod = 0; mod != hashmap->len; ++mod) {
+        if (hashmap->mods[mod].len != 0) {
+            iterator._outer = mod;
+            break;
+        }
+    }
+    iterator._outer = mod;
+    return iterator;
+}
+
+void* hashmap_iterator_next(hashmap_iterator* iterator, size_t size) {
+    if (iterator->_outer == iterator->_hashmap->len) {
+        return 0;
+    }
+    ++iterator->_inner;
+    if (iterator->_inner == iterator->_hashmap->mods[iterator->_outer].len) {
+        iterator->_inner = 0;
+        for (++iterator->_outer;
+             iterator->_outer != iterator->_hashmap->len;
+             ++iterator->_outer) {
+            if (iterator->_hashmap->mods[iterator->_outer].len != 0) {
+                goto ret;
+            }
+        }
+        return 0;
+    }
+ret:
+    return &iterator->_hashmap->mods[iterator->_outer].elems[iterator->_inner * size];
+}
+
+void* hashmap_iterator_peek(const hashmap_iterator* iterator, size_t size) {
+    if (iterator->_outer == iterator->_hashmap->len) {
+        return 0;
+    } else {
+        return &iterator->_hashmap->mods[iterator->_outer]
+            .elems[iterator->_inner * size];
     }
 }
 
@@ -207,9 +251,9 @@ TEST(test_hashmap_erase) {
     ASSERT(hashmap_contains(hashmap, &num, sizeof(size_t)), cleanup);
     num = 8;
     ASSERT(!hashmap_contains(hashmap, &num, sizeof(size_t)), cleanup);
-    ASSERT(!hashmap_erase(hashmap, &num, sizeof(size_t)), cleanup);
-    num = 3;
     ASSERT(hashmap_erase(hashmap, &num, sizeof(size_t)), cleanup);
+    num = 3;
+    ASSERT(!hashmap_erase(hashmap, &num, sizeof(size_t)), cleanup);
 cleanup:
     hashmap_destroy(hashmap);
 }
