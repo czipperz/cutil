@@ -24,6 +24,7 @@ int main() {
     rpmalloc_initialize();
     run(test_vec);
     run(test_str);
+    run(test_hashmap);
     printf("%d of %d succeeded.\n", successes, failures + successes);
     printf("%d assertions succeeded.\n", successes_assert);
     rpmalloc_finalize();
