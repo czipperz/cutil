@@ -61,6 +61,7 @@ int vec_reserve(void* s, size_t size, size_t new_cap) {
 }
 
 int vec_insert(void* s, size_t size, size_t index, const void* elem) {
+    assert(elem);
     if (vec_make_space(s, size, index)) {
         return -1;
     }
@@ -83,7 +84,6 @@ int vec_make_space(void* s, size_t size, size_t index) {
 
 int vec_push(void* s, size_t size, const void* elem) {
     struct vec* self = s;
-    assert(self);
     return vec_insert(self, size, self->len, elem);
 }
 
