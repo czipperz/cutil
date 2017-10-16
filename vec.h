@@ -51,13 +51,18 @@ extern "C" {
  * \return Returns -1 on memory allocation error, 0 on success. */
 int vec_reserve(void* self, size_t sizeof_elem, size_t new_cap);
 
-/*! \brief Reserve an extra element, then insert `str` at `index`.
+/*! \brief Reserve an extra element, then insert \c elem at \c index.
  *
  * \return Returns -1 on memory allocation error, 0 on success. */
 int vec_insert(void* self, size_t sizeof_elem, size_t index,
                const void* elem);
 
-/*! \brief Reserve an extra element, then insert \c str at the end.
+/*! \brief Reserve an extra element, then make space for an element at `index`.
+ *
+ * \return Returns -1 on memory allocation error, 0 on success. */
+int vec_make_space(void* self, size_t sizeof_elem, size_t index);
+
+/*! \brief Reserve an extra element, then insert \c elem at the end.
  *
  * \return Returns -1 on memory allocation error, 0 on success. */
 int vec_push(void* self, size_t sizeof_elem, const void* elem);
