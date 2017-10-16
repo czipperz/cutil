@@ -12,6 +12,7 @@ set(files ${CUTIL_SOURCE_DIR}/src/str.c
           ${CUTIL_SOURCE_DIR}/src/stack_trace.c
           ${CUTIL_SOURCE_DIR}/src/log.c
           ${CUTIL_SOURCE_DIR}/src/hashmap.c
+          ${CUTIL_SOURCE_DIR}/src/hashset.c
           ${CUTIL_SOURCE_DIR}/src/rpmalloc.c)
 
 add_definitions("-Wincompatible-pointer-types" "-Wall"
